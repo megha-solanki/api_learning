@@ -1,21 +1,23 @@
 import 'dart:math';
 
 import 'package:api_learning/api/auth.dart';
+import 'package:api_learning/model/auth_model.dart';
+import 'package:api_learning/shared_prefs/shared_prefs.dart';
+import 'package:api_learning/view/home.dart';
 import 'package:api_learning/widgets/custom_button.dart';
 import 'package:api_learning/widgets/custom_textformfield.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class Registration extends StatefulWidget {
-  const Registration({super.key});
+class Login extends StatefulWidget {
+  const Login({super.key});
 
   @override
-  State<Registration> createState() => _RegistrationState();
+  State<Login> createState() => _LoginState();
 }
 
-class _RegistrationState extends State<Registration> {
+class _LoginState extends State<Login> {
   TextEditingController txtEmail = TextEditingController();
-  TextEditingController txtName = TextEditingController();
   TextEditingController txtPassword = TextEditingController();
 
   @override
@@ -32,24 +34,13 @@ class _RegistrationState extends State<Registration> {
                   const Padding(
                     padding: EdgeInsets.only(top: 25.0),
                     child: Text(
-                      "Welcome",
+                      "Welcome Login",
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
                   const SizedBox(
                     height: 25,
                   ),
-                  CustomTextFormField(
-                      label: "Name",
-                      hintText: "Enter your name",
-                      controller: txtName,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Email is required";
-                        }
-                      },
-                      keyboardType: TextInputType.text),
-                  const SizedBox(height: 20),
                   CustomTextFormField(
                       label: "Email",
                       hintText: "Enter your email",
@@ -75,17 +66,24 @@ class _RegistrationState extends State<Registration> {
                   CustomButton(
                       onPressed: () {
                         Map<String, dynamic> data = {
-                          "name": txtName.text,
                           "email": txtEmail.text,
                           "password": txtPassword.text,
-                          "avatar": "https://picsum.photos/800"
                         };
                         if (kDebugMode) {
                           print("$data");
                         }
-                        registration(data: data);
+                        login(data: data).then((value) async {
+                          savePreference(value!).then((value) {
+                            Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const Home(),
+                                ),
+                                (route) => false);
+                          });
+                        });
                       },
-                      label: "Registration")
+                      label: "Login")
                 ],
               ),
             ),
@@ -93,5 +91,15 @@ class _RegistrationState extends State<Registration> {
         ),
       ),
     );
+  }
+}
+
+Future<bool> savePreference(AuthModel value) async {
+  try {
+    await Prefs.setString("access_token", value.accessToken);
+    await Prefs.setString("refresh_token", value.refreshToken);
+    return true;
+  } catch (e) {
+    return false;
   }
 }
