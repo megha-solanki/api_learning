@@ -1,4 +1,5 @@
 import 'package:api_learning/shared_prefs/shared_prefs.dart';
+import 'package:api_learning/view/demo.dart';
 import 'package:api_learning/view/login.dart';
 
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Login(),
+      home: const Demo(),
     );
   }
 }
